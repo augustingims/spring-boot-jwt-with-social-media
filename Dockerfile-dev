@@ -1,0 +1,12 @@
+FROM openjdk:8-jdk-alpine
+WORKDIR /app
+VOLUME /tmp
+RUN mkdir -p /app/configs
+RUN mkdir -p /app/uploads
+COPY ./src/main/resources/* /app/configs/
+ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS
+ARG JAR_FILE
+COPY ${JAR_FILE} /app/app.jar
+ADD https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.18.0.RC1/elastic-apm-agent-1.18.0.RC1.jar /apm/agent.jar
+COPY elasticapm.properties /apm/
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom", "-javaagent:/apm/agent.jar","-jar","/app/app.jar","--spring.config.location=file:/app/configs/"]

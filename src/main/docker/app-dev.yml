@@ -1,0 +1,46 @@
+version: "3.7"
+services:
+  localexterncrm:
+    build:
+      context: ../../../
+      dockerfile: Dockerfile-dev
+      args:
+        JAR_FILE: target/localextercrmbackend-0.0.1.jar
+    environment:
+      - RESOURCE_SERVER_STORE=/app/uploads/
+      - RESOURCE_SERVER_STORE_URL=https://afb-api.skysoft.cm/uploads/
+      - _JAVA_OPTIONS=-Xmx512m -Xms256m -Dspring.profiles.active=prod
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/localexterncrm?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8&useSSL=false&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=Kema1703
+    networks:
+      - web_network
+    volumes:
+      - upload_data:/app/uploads
+    ports:
+      - "8080:8080"
+  mysql:
+    image: mysql:8.0.18
+    command: mysqld --lower_case_table_names=1 --skip-ssl --character_set_server=utf8mb4 --explicit_defaults_for_timestamp
+    environment:
+      - MYSQL_ROOT_PASSWORD=Kema1703
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=Kema1703
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - web_network
+
+networks:
+  web_network:
+    name: web_network
+
+volumes:
+  mysql_data:
+  upload_data:
+    driver: local
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "~/"
